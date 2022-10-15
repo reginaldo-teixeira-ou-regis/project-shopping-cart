@@ -1,6 +1,8 @@
 // Esse tipo de comentário que estão antes de todas as funções são chamados de JSdoc,
 // experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições! 
 
+/* const { fetchProducts } = require("./helpers/fetchProducts"); */
+
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
 
 /**
@@ -37,10 +39,10 @@ const createCustomElement = (element, className, innerText) => {
  * @param {string} product.thumbnail - URL da imagem do produto.
  * @returns {Element} Elemento de produto.
  */
-const createProductItemElement = ({ id, title, thumbnail }) => {
+
+const createProductItemElement = (id, title, thumbnail) => {
   const section = document.createElement('section');
   section.className = 'item';
-
   section.appendChild(createCustomElement('span', 'item_id', id));
   section.appendChild(createCustomElement('span', 'item__title', title));
   section.appendChild(createProductImageElement(thumbnail));
@@ -48,6 +50,16 @@ const createProductItemElement = ({ id, title, thumbnail }) => {
 
   return section;
 };
+const sectionItems = document.getElementsByClassName('items')[0];
+const addItems = async () => {
+  const armFetch = await fetchProducts('computador');
+  armFetch.reduce((save, pointer) => {
+    sectionItems.appendChild(createProductItemElement(pointer.id,
+     pointer.title, pointer.thumbnail));
+    return save;
+  }, '');
+};
+addItems();
 
 /**
  * Função que recupera o ID do produto passado como parâmetro.
