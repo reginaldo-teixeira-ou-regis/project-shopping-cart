@@ -1,5 +1,3 @@
-/* const { url } = require("inspector"); */
-
 const fetchProducts = async (products) => {
   const response = await fetch(
     `https://api.mercadolibre.com/sites/MLA/search?q=${products}`,

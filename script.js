@@ -1,9 +1,31 @@
 // Esse tipo de comentário que estão antes de todas as funções são chamados de JSdoc,
-// experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições! 
-
-/* const { fetchProducts } = require("./helpers/fetchProducts"); */
+// experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições!
 
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
+
+const setTotalValue = (value) => {
+  const elementTotal = document.getElementsByClassName('total-price')[0];
+  if (elementTotal) {
+    elementTotal.innerText = value;
+  } else {
+    const elementCart = document.getElementsByClassName('cart')[0];
+    const p = createCustomElement('p', 'total-price', value);
+    elementCart.appendChild(p);
+  }
+};
+
+const deleteCartItems = (item) => {
+  const cartItems = getSavedCartItems();
+  if (cartItems) {
+    const index = cartItems.findIndex((value) => value.id === item.id);
+    const removeItems = cartItems.splice(index, 1);
+    let totalCart = Number(getItemLocalStorage('totalCart'));
+    totalCart -= removeItems[0].price;
+    setTotalValue(totalCart);
+    addItemLocalStorage('totalCart', totalCart);
+  }
+  addItemLocalStorage('cartItems', cartItems);
+};
 
 /**
  * Função responsável por criar e retornar o elemento de imagem do produto.
@@ -33,12 +55,33 @@ const createCustomElement = (element, className, innerText) => {
 
 /**
  * Função responsável por criar e retornar o elemento do produto.
- * @param {Object} product - Objeto do produto. 
+ * @param {Object} product - Objeto do produto.
  * @param {string} product.id - ID do produto.
  * @param {string} product.title - Título do produto.
  * @param {string} product.thumbnail - URL da imagem do produto.
  * @returns {Element} Elemento de produto.
  */
+
+const btnProductClick = async (id, event) => {
+  event.target.innerText = 'carregando...';
+  event.target.classList.add('loading');
+  const fetched = await fetchItem(id);
+  event.target.innerText = 'Adicionar ao carrinho!';
+  event.target.className = 'item__add';
+  saveCartItems(fetched);
+  const ol = document.getElementsByClassName('cart__items')[0];
+  ol.appendChild(
+    createCartItemElement({
+      id: fetched.id,
+      title: fetched.title,
+      price: fetched.price,
+    }),
+  );
+  let totalCart = Number(getItemLocalStorage('totalCart'));
+  totalCart += fetched.price;
+  setTotalValue(totalCart);
+  addItemLocalStorage('totalCart', totalCart);
+};
 
 const createProductItemElement = (id, title, thumbnail) => {
   const section = document.createElement('section');
@@ -46,16 +89,24 @@ const createProductItemElement = (id, title, thumbnail) => {
   section.appendChild(createCustomElement('span', 'item_id', id));
   section.appendChild(createCustomElement('span', 'item__title', title));
   section.appendChild(createProductImageElement(thumbnail));
-  section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
-
+  const button = createCustomElement(
+    'button',
+    'item__add',
+    'Adicionar ao carrinho!',
+  );
+  button.addEventListener('click', (e) => btnProductClick(id, e));
+  section.appendChild(button);
   return section;
 };
+
 const sectionItems = document.getElementsByClassName('items')[0];
+
 const addItems = async () => {
   const armFetch = await fetchProducts('computador');
   armFetch.reduce((save, pointer) => {
-    sectionItems.appendChild(createProductItemElement(pointer.id,
-     pointer.title, pointer.thumbnail));
+    sectionItems.appendChild(
+      createProductItemElement(pointer.id, pointer.title, pointer.thumbnail)
+    );
     return save;
   }, '');
 };
@@ -66,7 +117,8 @@ addItems();
  * @param {Element} product - Elemento do produto.
  * @returns {string} ID do produto.
  */
-const getIdFromProductItem = (product) => product.querySelector('span.id').innerText;
+/* const getIdFromProductItem = (product) =>
+  product.querySelector('span.id').innerText; */
 
 /**
  * Função responsável por criar e retornar um item do carrinho.
@@ -80,8 +132,40 @@ const createCartItemElement = ({ id, title, price }) => {
   const li = document.createElement('li');
   li.className = 'cart__item';
   li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
-  li.addEventListener('click', cartItemClickListener);
+  li.addEventListener('click', () => {
+    deleteCartItems({ id });
+    li.remove();
+  });
   return li;
 };
 
-window.onload = () => { };
+const clearCart = () => {
+  document
+    .getElementsByClassName('empty-cart')[0]
+    .addEventListener('click', () => {
+      localStorage.removeItem('cartItems');
+      document.getElementsByClassName('cart__items')[0].innerText = '';
+      addItemLocalStorage('totalCart', 0);
+      setTotalValue(0);
+    });
+};
+
+window.onload = () => {
+  const items = getSavedCartItems();
+  if (items) {
+    const ol = document.getElementsByClassName('cart__items')[0];
+    let total = 0;
+    items.forEach((element) => {
+      const li = createCartItemElement({
+        id: element.id,
+        title: element.title,
+        price: element.price,
+      });
+      ol.appendChild(li);
+      total += element.price;
+    });
+    addItemLocalStorage('totalCart', total);
+    setTotalValue(total);
+  }
+  clearCart();
+};
