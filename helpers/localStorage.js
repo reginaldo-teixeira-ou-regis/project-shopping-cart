@@ -1,4 +1,4 @@
-const addItemLocalStorage = (name, value) => {
+/* const addItemLocalStorage = (name, value) => {
   localStorage.setItem(
     name,
     typeof value === 'object' ? JSON.stringify(value) : String(value),
@@ -20,4 +20,4 @@ if (typeof module !== 'undefined') {
     addItemLocalStorage,
     getItemLocalStorage,
   };
-}
+} */

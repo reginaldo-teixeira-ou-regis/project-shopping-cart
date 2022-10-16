@@ -3,6 +3,33 @@
 
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
 
+const addItemLocalStorage = (name, value) => {
+  localStorage.setItem(
+    name,
+    typeof value === 'object' ? JSON.stringify(value) : String(value),
+  );
+};
+
+const getItemLocalStorage = (name) => {
+  let load = null;
+  try {
+    load = localStorage.getItem(name);
+    return JSON.parse(load);
+  } catch (e) {
+    return load;
+  }
+};
+
+const savedCartItems = (item) => {
+  let cartItems = getSavedCartItems();
+  if (cartItems) {
+    cartItems.push(item);
+  } else {
+    cartItems = [item];
+  }
+  addItemLocalStorage('cartItems', cartItems);
+};
+
 /**
  * Função responsável por criar e retornar qualquer elemento.
  * @param {string} element - Nome do elemento a ser criado.
@@ -80,14 +107,13 @@ const btnProductClick = async (id, event) => {
   const fetched = await fetchItem(id);
   eTarget.innerText = 'Adicionar ao carrinho!';
   eTarget.className = 'item__add';
-  saveCartItems(fetched);
+  savedCartItems(fetched);
   const ol = document.getElementsByClassName('cart__items')[0];
   ol.appendChild(createCartItemElement({
       id: fetched.id,
       title: fetched.title,
       price: fetched.price,
-    }),
-  );
+    }));
   let totalCart = Number(getItemLocalStorage('totalCart'));
   totalCart += fetched.price;
   setTotalValue(totalCart);
