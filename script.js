@@ -102,10 +102,13 @@ const createProductItemElement = (id, title, thumbnail) => {
 const sectionItems = document.getElementsByClassName('items')[0];
 
 const addItems = async () => {
+  const loading = createCustomElement('p', 'loading', 'carregando...');
+  sectionItems.appendChild(loading);
   const armFetch = await fetchProducts('computador');
+  loading.remove();
   armFetch.reduce((save, pointer) => {
     sectionItems.appendChild(
-      createProductItemElement(pointer.id, pointer.title, pointer.thumbnail)
+      createProductItemElement(pointer.id, pointer.title, pointer.thumbnail),
     );
     return save;
   }, '');

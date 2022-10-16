@@ -7,18 +7,20 @@ describe('1 - Teste a função fetchProducts', () => {
     expect(typeof fetchProducts).toEqual('function');
   });
   it('Run the fetchProducts function with the "computador" argument and test if fetch was called', async () => {
+    const spyFetch = jest.spyOn(global, "fetch");
     await fetchProducts('computador');
-    expect(fetch).toBeCalled();
+    expect(spyFetch).toBeCalled();
   });
-  it('Test if, when calling the fetchProducts function with the "computador" argument, the fetch function uses the endpoint: "https://api.mercadolibre.com/sites/MLB/search?q=computador"', async () => {
+  it('Test if, when calling the fetchProducts function with the "computador" argument, the fetch function uses the endpoint: "https://api.mercadolibre.com/sites/MLA/search?q=computador"', async () => {
+    const spyFetch = jest.spyOn(global, "fetch");
     await fetchProducts('computador');
-    expect(fetch).toHaveBeenCalledWith('https://api.mercadolibre.com/sites/MLB/search?q=computador');
+    expect(spyFetch).toHaveBeenCalledWith('https://api.mercadolibre.com/sites/MLA/search?q=computador');
   });
-/*   it('Test if the fetchProducts function return with the "computador" argument is a data structure equal to the computerSearch object', async () => {
-    await fetchProducts('computador');
-    expect(fetch).toEqual(computadorSearch);
-  });
-  it('Test if calling the fetchProducts function with no argument returns an error with the message: "You must provide an url"', async () => {
-    expect(await fetchProducts('computador')).toThrow(new Error('You must provide an url'));
+  /* it('Test if the fetchProducts function return with the "computador" argument is a data structure equal to the computerSearch object', async () => {
+    const fetched = await fetchProducts('computador');
+    expect(JSON.stringify(fetched)).toEqual(JSON.stringify(computadorSearch));
   }); */
+  it('Test if calling the fetchProducts function with no argument returns an error with the message: "You must provide an url"', async () => {
+    expect(await fetchProducts()).toEqual(new Error('You must provide an url'));
+  });
 });
