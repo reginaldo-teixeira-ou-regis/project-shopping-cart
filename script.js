@@ -3,6 +3,20 @@
 
 // Fique a vontade para modificar o código já escrito e criar suas próprias funções!
 
+/**
+ * Função responsável por criar e retornar qualquer elemento.
+ * @param {string} element - Nome do elemento a ser criado.
+ * @param {string} className - Classe do elemento.
+ * @param {string} innerText - Texto do elemento.
+ * @returns {Element} Elemento criado.
+ */
+ const createCustomElement = (element, className, innerText) => {
+  const e = document.createElement(element);
+  e.className = className;
+  e.innerText = innerText;
+  return e;
+};
+
 const setTotalValue = (value) => {
   const elementTotal = document.getElementsByClassName('total-price')[0];
   if (elementTotal) {
@@ -39,21 +53,7 @@ const createProductImageElement = (imageSource) => {
   return img;
 };
 
-/**
- * Função responsável por criar e retornar qualquer elemento.
- * @param {string} element - Nome do elemento a ser criado.
- * @param {string} className - Classe do elemento.
- * @param {string} innerText - Texto do elemento.
- * @returns {Element} Elemento criado.
- */
-const createCustomElement = (element, className, innerText) => {
-  const e = document.createElement(element);
-  e.className = className;
-  e.innerText = innerText;
-  return e;
-};
-
-/**
+/*
  * Função responsável por criar e retornar o elemento do produto.
  * @param {Object} product - Objeto do produto.
  * @param {string} product.id - ID do produto.
@@ -62,16 +62,27 @@ const createCustomElement = (element, className, innerText) => {
  * @returns {Element} Elemento de produto.
  */
 
+const createCartItemElement = ({ id, title, price }) => {
+  const li = document.createElement('li');
+  li.className = 'cart__item';
+  li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
+  li.addEventListener('click', () => {
+    deleteCartItems({ id });
+    li.remove();
+  });
+  return li;
+};
+
 const btnProductClick = async (id, event) => {
-  event.target.innerText = 'carregando...';
-  event.target.classList.add('loading');
+  const eTarget = event.target;
+  eTarget.innerText = 'carregando...';
+  eTarget.classList.add('loading');
   const fetched = await fetchItem(id);
-  event.target.innerText = 'Adicionar ao carrinho!';
-  event.target.className = 'item__add';
+  eTarget.innerText = 'Adicionar ao carrinho!';
+  eTarget.className = 'item__add';
   saveCartItems(fetched);
   const ol = document.getElementsByClassName('cart__items')[0];
-  ol.appendChild(
-    createCartItemElement({
+  ol.appendChild(createCartItemElement({
       id: fetched.id,
       title: fetched.title,
       price: fetched.price,
@@ -131,16 +142,6 @@ addItems();
  * @param {string} product.price - Preço do produto.
  * @returns {Element} Elemento de um item do carrinho.
  */
-const createCartItemElement = ({ id, title, price }) => {
-  const li = document.createElement('li');
-  li.className = 'cart__item';
-  li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
-  li.addEventListener('click', () => {
-    deleteCartItems({ id });
-    li.remove();
-  });
-  return li;
-};
 
 const clearCart = () => {
   document
