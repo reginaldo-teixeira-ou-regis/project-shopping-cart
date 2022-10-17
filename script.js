@@ -1,7 +1,15 @@
-// Esse tipo de comentário que estão antes de todas as funções são chamados de JSdoc,
-// experimente passar o mouse sobre o nome das funções e verá que elas possuem descrições!
+const arrowTop = document.getElementById('top__arrow');
 
-// Fique a vontade para modificar o código já escrito e criar suas próprias funções!
+arrowTop.addEventListener('click', () => {
+  window.scrollTo(0, 0);
+});
+window.onscroll = () => {
+  if (window.scrollY > 80) {
+    arrowTop.style.display = 'block';
+  } else {
+    arrowTop.style.display = 'none';
+  }
+};
 
 const addItemLocalStorage = (name, value) => {
   localStorage.setItem(
@@ -31,29 +39,27 @@ const savedCartItems = (item) => {
   saveCartItems(JSON.stringify(cartItems));
 };
 
-/**
- * Função responsável por criar e retornar qualquer elemento.
- * @param {string} element - Nome do elemento a ser criado.
- * @param {string} className - Classe do elemento.
- * @param {string} innerText - Texto do elemento.
- * @returns {Element} Elemento criado.
- */
- const createCustomElement = (element, className, innerText) => {
+const createCustomElement = (element, className, innerText) => {
   const e = document.createElement(element);
   e.className = className;
   e.innerText = innerText;
   return e;
 };
 
-const setTotalValue = (value) => {
+const setTotalValue = (value, operation) => {
   const elementTotal = document.getElementsByClassName('total-price')[0];
-  if (elementTotal) {
-    elementTotal.innerText = value;
+  let totalCart = getItemLocalStorage('totalCart');
+  if (operation === '-') {
+    totalCart -= value;
+  } else if (operation === '+') {
+    totalCart += value;
   } else {
-    const elementCart = document.getElementsByClassName('cart')[0];
-    const p = createCustomElement('p', 'total-price', value);
-    elementCart.appendChild(p);
+    totalCart = value;
   }
+  const payTotal = 'Total: ';
+  elementTotal.innerText = payTotal + new Intl.NumberFormat('pt-BR',
+   { style: 'currency', currency: 'BRL' }).format(totalCart);
+  addItemLocalStorage('totalCart', JSON.stringify(totalCart));
 };
 
 const deleteCartItems = (item) => {
@@ -61,19 +67,11 @@ const deleteCartItems = (item) => {
   if (cartItems) {
     const index = cartItems.findIndex((value) => value.id === item.id);
     const removeItems = cartItems.splice(index, 1);
-    let totalCart = getItemLocalStorage('totalCart');
-    totalCart -= removeItems[0].price;
-    setTotalValue(totalCart);
-    addItemLocalStorage('totalCart', totalCart);
+    setTotalValue(removeItems[0].price, '-');
   }
   addItemLocalStorage('cartItems', cartItems);
 };
 
-/**
- * Função responsável por criar e retornar o elemento de imagem do produto.
- * @param {string} imageSource - URL da imagem.
- * @returns {Element} Elemento de imagem do produto.
- */
 const createProductImageElement = (imageSource) => {
   const img = document.createElement('img');
   img.className = 'item__image';
@@ -81,19 +79,16 @@ const createProductImageElement = (imageSource) => {
   return img;
 };
 
-/*
- * Função responsável por criar e retornar o elemento do produto.
- * @param {Object} product - Objeto do produto.
- * @param {string} product.id - ID do produto.
- * @param {string} product.title - Título do produto.
- * @param {string} product.thumbnail - URL da imagem do produto.
- * @returns {Element} Elemento de produto.
- */
-
-const createCartItemElement = ({ id, title, price }) => {
+const createCartItemElement = ({ id, title, price, thumbnail }) => {
   const li = document.createElement('li');
   li.className = 'cart__item';
-  li.innerText = `ID: ${id} | TITLE: ${title} | PRICE: $${price}`;
+  const img = document.createElement('img');
+  img.src = thumbnail;
+  img.className = 'cart__thumb';
+  li.appendChild(img);
+  li.appendChild(createCustomElement('p', 'cart__p',
+   `ID: ${id} | TITLE: ${title} | PRICE: ${new Intl.NumberFormat('pt-BR',
+    { style: 'currency', currency: 'BRL' }).format(price)}`));
   li.addEventListener('click', () => {
     deleteCartItems({ id });
     li.remove();
@@ -110,18 +105,11 @@ const btnProductClick = async (id, event) => {
   eTarget.className = 'item__add';
   savedCartItems(fetched);
   const ol = document.getElementsByClassName('cart__items')[0];
-  ol.appendChild(createCartItemElement({
-      id: fetched.id,
-      title: fetched.title,
-      price: fetched.price,
-    }));
-  let totalCart = Number(getItemLocalStorage('totalCart'));
-  totalCart += fetched.price;
-  setTotalValue(totalCart);
-  addItemLocalStorage('totalCart', totalCart);
+  ol.appendChild(createCartItemElement(fetched));
+  setTotalValue(fetched.price, '+');
 };
 
-const createProductItemElement = (id, title, thumbnail) => {
+const createProductItemElement = ({ id, title, thumbnail, price }) => {
   const section = document.createElement('section');
   section.className = 'item';
   section.appendChild(createCustomElement('span', 'item_id', id));
@@ -132,6 +120,10 @@ const createProductItemElement = (id, title, thumbnail) => {
     'item__add',
     'Adicionar ao carrinho!',
   );
+  const priceProduct = 'Preço: ';
+  section.appendChild(createCustomElement('span', 'item__price',
+   priceProduct + new Intl.NumberFormat('pt-BR',
+  { style: 'currency', currency: 'BRL' }).format(price)));
   button.addEventListener('click', (e) => btnProductClick(id, e));
   section.appendChild(button);
   return section;
@@ -140,35 +132,18 @@ const createProductItemElement = (id, title, thumbnail) => {
 const sectionItems = document.getElementsByClassName('items')[0];
 
 const addItems = async () => {
-  const loading = createCustomElement('p', 'loading', 'carregando...');
+  const loading = createCustomElement('p', 'loading', 'carregando....');
   sectionItems.appendChild(loading);
   const armFetch = await fetchProducts('computador');
   loading.remove();
   armFetch.reduce((save, pointer) => {
     sectionItems.appendChild(
-      createProductItemElement(pointer.id, pointer.title, pointer.thumbnail),
+      createProductItemElement(pointer),
     );
     return save;
   }, '');
 };
 addItems();
-
-/**
- * Função que recupera o ID do produto passado como parâmetro.
- * @param {Element} product - Elemento do produto.
- * @returns {string} ID do produto.
- */
-/* const getIdFromProductItem = (product) =>
-  product.querySelector('span.id').innerText; */
-
-/**
- * Função responsável por criar e retornar um item do carrinho.
- * @param {Object} product - Objeto do produto.
- * @param {string} product.id - ID do produto.
- * @param {string} product.title - Título do produto.
- * @param {string} product.price - Preço do produto.
- * @returns {Element} Elemento de um item do carrinho.
- */
 
 const clearCart = () => {
   document
@@ -176,31 +151,44 @@ const clearCart = () => {
     .addEventListener('click', () => {
       localStorage.removeItem('cartItems');
       document.getElementsByClassName('cart__items')[0].innerText = '';
-      addItemLocalStorage('totalCart', 0);
       setTotalValue(0);
     });
 };
 
 const forEachOnload = (element) => {
-  const li = createCartItemElement({
-    id: element.id,
-    title: element.title,
-    price: element.price,
-  });
+  const li = createCartItemElement(element);
   const ol = document.getElementsByClassName('cart__items')[0];
   ol.appendChild(li);
   return element.price;
 };
+
+const inputSearch = document.getElementById('searchInput');
+
+const searchProducts = async () => {
+  sectionItems.innerHTML = 'carregando...';
+  const valueInput = inputSearch.value;
+  let itemsProducts;
+  if (valueInput.length === 0) {
+    itemsProducts = await fetchProducts('computador');
+  } else {
+    itemsProducts = await fetchProducts(valueInput);
+  }
+  sectionItems.innerHTML = '';
+  if (itemsProducts.length === 0) {
+    sectionItems.appendChild(createCustomElement('h3', 'erro__class', 'Produto não encontrado'));
+  }
+  itemsProducts.forEach((element) => {
+    sectionItems.appendChild(createProductItemElement(element));
+  });
+};
+inputSearch.addEventListener('change', searchProducts);
 
 window.onload = () => {
   const items = JSON.parse(getSavedCartItems());
   if (items) {
     let total = 0;
     items.forEach((element) => { total += forEachOnload(element); });
-    addItemLocalStorage('totalCart', total);
     setTotalValue(total);
-    /* new Intl.NumberFormat('pt-BR', {
-      style: 'currency', currency: 'BRL' }).format() */
   }
   clearCart();
 };

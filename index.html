@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="./helpers/fetchItem.js" defer></script>
@@ -21,16 +22,26 @@
       <div class="container-title">
         <span class="title"><strong>trybe</strong>shopping</span>
       </div>
-      <i class="material-icons" style="font-size:45px;color:white">shopping_cart</i>
-      <div class="container-cartTitle">
-        <span class="cart__title">Meu carrinho</span>
+      <input id="searchInput" placeholder="Pesquisar por produtos" type="text">
+      <div id="myCart__iconCart">
+        <i class="material-icons" style="font-size:45px;color:white">shopping_cart</i>
+        <div class="container-cartTitle">
+          <span class="cart__title">Meu carrinho</span>
+        </div>
       </div>
     </header>
     <section class="container">
       <section class="items"></section>
       <section class="cart">
         <ol class="cart__items"></ol>
+        <div id="icon__cart__total">
+          <i class="material-icons" style="font-size:45px;color: blue">shopping_cart</i>
+          <span class="total-price">Total: R$ 0,00</span>
+        </div>
         <button class="empty-cart">Esvaziar carrinho</button>
+        <button id="top__arrow" style="display: none;"><span class="material-symbols-outlined">
+          arrow_upward
+          </span></button>
       </section>
     </section>
   </body>
