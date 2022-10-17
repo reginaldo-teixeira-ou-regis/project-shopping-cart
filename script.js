@@ -21,13 +21,14 @@ const getItemLocalStorage = (name) => {
 };
 
 const savedCartItems = (item) => {
-  let cartItems = getSavedCartItems();
-  if (cartItems) {
+  let cartItems;
+  if (localStorage.cartItems) {
+    cartItems = JSON.parse(localStorage.cartItems);
     cartItems.push(item);
   } else {
     cartItems = [item];
   }
-  addItemLocalStorage('cartItems', cartItems);
+  saveCartItems(JSON.stringify(cartItems));
 };
 
 /**
@@ -56,11 +57,11 @@ const setTotalValue = (value) => {
 };
 
 const deleteCartItems = (item) => {
-  const cartItems = getSavedCartItems();
+  const cartItems = JSON.parse(getSavedCartItems());
   if (cartItems) {
     const index = cartItems.findIndex((value) => value.id === item.id);
     const removeItems = cartItems.splice(index, 1);
-    let totalCart = Number(getItemLocalStorage('totalCart'));
+    let totalCart = getItemLocalStorage('totalCart');
     totalCart -= removeItems[0].price;
     setTotalValue(totalCart);
     addItemLocalStorage('totalCart', totalCart);
@@ -180,22 +181,26 @@ const clearCart = () => {
     });
 };
 
+const forEachOnload = (element) => {
+  const li = createCartItemElement({
+    id: element.id,
+    title: element.title,
+    price: element.price,
+  });
+  const ol = document.getElementsByClassName('cart__items')[0];
+  ol.appendChild(li);
+  return element.price;
+};
+
 window.onload = () => {
-  const items = getSavedCartItems();
+  const items = JSON.parse(getSavedCartItems());
   if (items) {
-    const ol = document.getElementsByClassName('cart__items')[0];
     let total = 0;
-    items.forEach((element) => {
-      const li = createCartItemElement({
-        id: element.id,
-        title: element.title,
-        price: element.price,
-      });
-      ol.appendChild(li);
-      total += element.price;
-    });
+    items.forEach((element) => { total += forEachOnload(element); });
     addItemLocalStorage('totalCart', total);
     setTotalValue(total);
+    /* new Intl.NumberFormat('pt-BR', {
+      style: 'currency', currency: 'BRL' }).format() */
   }
   clearCart();
 };

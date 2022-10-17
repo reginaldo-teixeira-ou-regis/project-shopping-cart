@@ -1,5 +1,3 @@
-/* const getSavedCartItems = () => getItemLocalStorage('cartItems'); */
-
 const getSavedCartItems = () => localStorage.getItem('cartItems');
 
 if (typeof module !== 'undefined') {
