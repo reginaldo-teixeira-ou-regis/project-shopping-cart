@@ -18,7 +18,7 @@ describe('1 - Test the fetchProducts function', () => {
   });
   /* it('Test if the fetchProducts function return with the "computador" argument is a data structure equal to the computerSearch object', async () => {
     const fetched = await fetchProducts('computador');
-    expect(fetched).toEqual(computadorSearch);
+    expect(fetched).toMatchObject(computadorSearch);
   }); */
   it('Test if calling the fetchProducts function with no argument returns an error with the message: "You must provide an url"', async () => {
     expect(await fetchProducts()).toEqual(new Error('You must provide an url'));
