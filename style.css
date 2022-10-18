@@ -14,7 +14,6 @@ body {
 }
 
 .header {
-  position: relative;
   background-color: rgb(3, 52, 45);
   display: flex;
   align-items: center;
@@ -194,7 +193,7 @@ body {
   bottom: 50px;
   left: 50px;
   border: none;
-  background-color: rgb(3, 52, 45);
+  background-color: rgb(10, 118, 79);
   border-radius: 100%;
   padding: 10px;
   color: white;
