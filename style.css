@@ -128,12 +128,24 @@ body {
 }
 
 .item .item__add {
-  background-color: rgb(5, 52, 219);
-  border: 0;
+  background-color: white;
+  border: 3px solid rgb(5, 52, 219);
+  border-radius: 5px;
   cursor: pointer;
-  margin: 0;
+  margin: 1px;
   padding: 10px;
+  color: black;
+  transition: all 0.5s;
+}
+
+.item .item__add:hover {
+  background-color: rgb(5, 52, 219);
   color: white;
+}
+
+.item .item__add:active {
+  background-color: rgb(19, 37, 102);
+  transition: all 0.1s;
 }
 
 .cart {
@@ -185,7 +197,19 @@ body {
   height: 35px;
   margin: 0 auto;
   border: 2px solid rgb(5, 52, 219);
+  border-radius: 5px;
   background-color: rgb(249, 249, 246);
+  transition: all 0.5s;
+}
+
+.empty-cart:hover {
+  background-color: red;
+  color: white;
+}
+
+.empty-cart:active {
+  background-color: rgb(19, 37, 102);
+  transition: all 0.1s;
 }
 
 #top__arrow {
